@@ -1,4 +1,4 @@
-# PM Interview Trainer PWA v2
+# PM Interview Trainer PWA v2.1
 
 Объединены:
 - `iGaming_prep_interactive.html` — уникальные учебные разделы, таблицы, формулы, заметки и вопросы.
@@ -17,3 +17,10 @@
 Framework preset: None
 Build command: пусто
 Output directory: корень репозитория
+
+
+## Исправление v2.1
+- исправлена синтаксическая ошибка `app.js`, из-за которой `init()` не запускался;
+- добавлен fallback списка разделов до инициализации JS;
+- добавлен boot watchdog с видимой диагностикой вместо пустой страницы;
+- обновлён cache key Service Worker, чтобы Cloudflare/браузер не держал сломанную старую версию.
