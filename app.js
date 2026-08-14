@@ -1,94 +1,17 @@
 
-const C=window.APP_CONTENT;
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const storeKey='pm-interview-os-v1';
-let state=JSON.parse(localStorage.getItem(storeKey)||'{"q":{},"modules":{},"theme":"light"}');
-let deferredPrompt=null, currentModule=null, shuffled=false;
-
-function save(){localStorage.setItem(storeKey,JSON.stringify(state));updateProgress()}
-function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
-function navItems(){
- const nav=$('#nav'); nav.innerHTML='';
- const add=(label,id,icon='')=>{const b=document.createElement('button');b.dataset.go=id;b.innerHTML=`${icon?`<span style="display:inline-block;width:21px">${icon}</span>`:''}${label}`;b.onclick=()=>go(id);nav.appendChild(b)};
- let sep=document.createElement('div');sep.className='navsep';sep.textContent='Учиться';nav.appendChild(sep);
- add('Обзор','dashboard','⌂');
- C.modules.forEach(m=>add(m.title,m.id,m.icon));
- sep=document.createElement('div');sep.className='navsep';sep.textContent='Практика';nav.appendChild(sep);
- add('Тренажёр','trainer','?');add('Словарь','glossary','≡');add('Настройки','settings','⚙');
-}
-function go(id){
- if(C.modules.some(m=>m.id===id)){openModule(id);return}
- $$('.view').forEach(v=>v.classList.remove('active')); $('#'+id).classList.add('active');
- $$('nav button').forEach(b=>b.classList.toggle('active',b.dataset.go===id));
- $('#mobileSection').textContent=id==='dashboard'?'Обзор':id==='trainer'?'Тренажёр':id==='glossary'?'Словарь':'Настройки';
- closeMenu(); window.scrollTo({top:0,behavior:'smooth'});
-}
-function renderModules(filter='ALL',term=''){
- const grid=$('#moduleGrid');grid.innerHTML='';
- const q=term.toLowerCase().trim();
- C.modules.filter(m=>(filter==='ALL'||m.level===filter)&&(!q||(m.title+' '+m.summary+' '+m.sections.map(s=>s.title+' '+s.body).join(' ')).toLowerCase().includes(q))).forEach(m=>{
-  const d=document.createElement('article');d.className='module-card';d.onclick=()=>openModule(m.id);
-  d.innerHTML=`<div class="module-icon">${m.icon}</div><h3>${m.title}</h3><p>${m.summary}</p><div class="module-footer"><span>${m.sections.length} блоков</span><span><i class="dotdone ${state.modules[m.id]?'done':''}"></i> ${state.modules[m.id]?'изучено':'в процессе'}</span></div>`;
-  grid.appendChild(d)
- });
-}
-function openModule(id){
- const m=C.modules.find(x=>x.id===id);currentModule=m;
- $$('.view').forEach(v=>v.classList.remove('active'));$('#moduleView').classList.add('active');
- $$('nav button').forEach(b=>b.classList.toggle('active',b.dataset.go===id));
- $('#mobileSection').textContent=m.title;
- $('#markModule').textContent=state.modules[id]?'✓ Изучено':'✓ Отметить изученным';
- $('#moduleContent').innerHTML=`<div class="module-hero"><div class="eyebrow">${m.level==='must'?'MUST KNOW':'DEEP DIVE'}</div><h2>${m.icon} ${m.title}</h2><p>${m.summary}</p></div><div class="content-grid">${m.sections.map(s=>`<article class="content-card"><h3>${s.title}</h3><p>${s.body}</p></article>`).join('')}</div>`;
- closeMenu(); window.scrollTo({top:0,behavior:'smooth'});
-}
-function updateProgress(){
- const known=Object.values(state.q).filter(x=>x==='known').length;
- const review=Object.values(state.q).filter(x=>x==='review').length;
- const moduleDone=Object.values(state.modules).filter(Boolean).length;
- const total=C.questions.length+C.modules.length, done=known+moduleDone;
- const pct=Math.round(done/total*100);
- $('#progressPct').textContent=pct+'%';$('#mobilePct').textContent=pct+'%';$('#progressBar').style.width=pct+'%';
- $('#knownCount').textContent=known+' вопросов освоено';$('#reviewCount').textContent=review+' повторить';$('#trainerKnown').textContent=known;
-}
-function renderQuestions(){
- let arr=C.questions.map((x,i)=>({...x,_i:i}));
- const term=$('#questionSearch').value.toLowerCase().trim(),cat=$('#questionCat').value,only=$('#onlyReview').classList.contains('active');
- if(shuffled) arr=[...arr].sort(()=>Math.random()-.5);
- arr=arr.filter(x=>(cat==='ALL'||x.cat===cat)&&(!term||(x.q+' '+x.a).toLowerCase().includes(term))&&(!only||state.q[x._i]==='review'));
- $('#questionList').innerHTML=arr.map((x,n)=>`<article class="question"><div class="qhead"><div class="qnum">${n+1}</div><div class="qmain"><b>${x.q}</b><div class="qcat">${x.cat}</div></div><div class="qstatus"><button class="statusbtn known ${state.q[x._i]==='known'?'on':''}" data-qi="${x._i}" data-status="known">Знаю</button><button class="statusbtn review ${state.q[x._i]==='review'?'on':''}" data-qi="${x._i}" data-status="review">Повторить</button></div></div><details><summary>Показать ответ</summary><div class="answer"><strong>Логика:</strong> ${x.a}</div></details></article>`).join('');
- $$('.statusbtn').forEach(b=>b.onclick=()=>{const i=b.dataset.qi,v=b.dataset.status;state.q[i]=state.q[i]===v?'':v;save();renderQuestions()});
-}
-function renderGloss(){
- const q=$('#glossSearch').value.toLowerCase().trim();
- $('#glossList').innerHTML=C.glossary.filter(x=>!q||(x.term+' '+x.def).toLowerCase().includes(q)).map(x=>`<article class="gloss-card"><b>${x.term}</b><span>${x.def}</span></article>`).join('');
-}
-function closeMenu(){$('#sidebar').classList.remove('open');$('#scrim').classList.remove('show')}
-function openMenu(){$('#sidebar').classList.add('open');$('#scrim').classList.add('show')}
-function exportState(){
- const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');
- a.href=URL.createObjectURL(blob);a.download='pm-interview-progress.json';a.click();URL.revokeObjectURL(a.href)
-}
-function applyTheme(){document.documentElement.dataset.theme=state.theme||'light'}
-function init(){
- navItems(); renderModules(); renderQuestions(); renderGloss(); updateProgress();applyTheme();
- $('#modCount').textContent=C.modules.length;$('#qCount').textContent=C.questions.length;$('#gCount').textContent=C.glossary.length;
- const cats=[...new Set(C.questions.map(x=>x.cat))];cats.forEach(c=>$('#questionCat').insertAdjacentHTML('beforeend',`<option>${c}</option>`));
- $$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
- $('#globalSearch').oninput=e=>renderModules('ALL',e.target.value);
- $$('[data-filter]').forEach(b=>b.onclick=()=>{$$('.chip[data-filter]').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderModules(b.dataset.filter,$('#globalSearch').value)});
- $('#resetFilter').onclick=()=>{$$('.chip[data-filter]').forEach(x=>x.classList.remove('active'));renderModules('ALL',$('#globalSearch').value)};
- $('#questionSearch').oninput=renderQuestions;$('#questionCat').onchange=renderQuestions;
- $('#onlyReview').onclick=e=>{e.currentTarget.classList.toggle('active');renderQuestions()};
- $('#shuffleBtn').onclick=e=>{shuffled=!shuffled;e.currentTarget.classList.toggle('active',shuffled);renderQuestions()};
- $('#glossSearch').oninput=renderGloss;
- $('#markModule').onclick=()=>{if(!currentModule)return;state.modules[currentModule.id]=!state.modules[currentModule.id];save();$('#markModule').textContent=state.modules[currentModule.id]?'✓ Изучено':'✓ Отметить изученным';toast(state.modules[currentModule.id]?'Модуль отмечен':'Отметка снята')};
- $('#themeBtn').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';save();applyTheme()};
- $('#menuBtn').onclick=openMenu;$('#scrim').onclick=closeMenu;
- $('#exportBtn').onclick=exportState;
- $('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);save();applyTheme();renderModules();renderQuestions();toast('Прогресс импортирован')}catch{toast('Не удалось прочитать файл')}};r.readAsText(f)};
- $('#resetBtn').onclick=()=>{if(confirm('Сбросить весь локальный прогресс?')){state={q:{},modules:{},theme:state.theme};save();renderModules();renderQuestions();toast('Прогресс сброшен')}};
- window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBtn').hidden=false});
- $('#installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$('#installBtn').hidden=true};
- if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').then(()=>$('#pwaStatus').textContent='Service Worker активен: приложение доступно офлайн после первого посещения.').catch(()=>{});
-}
-init();
+const D=window.APP_DATA,$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const KEY='pm-interview-v2';let S=JSON.parse(localStorage.getItem(KEY)||'{"q":{},"m":{},"theme":"light"}'),cur=null,installPrompt=null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function save(){localStorage.setItem(KEY,JSON.stringify(S));progress()}function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),1400)}
+function show(id){$$('.view').forEach(v=>v.classList.remove('active'));$('#'+id).classList.add('active');$$('nav button').forEach(b=>b.classList.toggle('active',b.dataset.go===id));$('#mobileTitle').textContent=id==='home'?'Разделы':id==='trainer'?'Тренажёр':id==='glossary'?'Термины':'Настройки';closeMenu();scrollTo(0,0)}
+function nav(){let n=$('#nav');n.innerHTML='<div class="nav-title">Материалы</div>';addNav('Разделы','home');D.modules.forEach(m=>addNav(m.title,m.id));n.insertAdjacentHTML('beforeend','<div class="nav-title">Практика</div>');addNav('Тренажёр','trainer');addNav('Термины','glossary');addNav('Настройки','settings')}
+function addNav(t,id){let b=document.createElement('button');b.textContent=t;b.dataset.go=id;b.onclick=()=>D.modules.some(m=>m.id===id)?openModule(id):show(id);$('#nav').appendChild(b)}
+function renderModules(q=''){q=q.toLowerCase().trim();$('#moduleList').innerHTML=D.modules.filter(m=>!q||(m.title+' '+m.stages.map(s=>s.title+' '+s.summary+' '+(s.terms||[]).join(' ')).join(' ')).toLowerCase().includes(q)).map(m=>`<article class="module-row" data-mid="${m.id}"><div class="micon">${m.icon}</div><div><h3>${esc(m.title)}</h3><p>${m.stages.length} блоков · каскад сверху вниз</p></div><div class="meta ${S.m[m.id]?'done':''}">${S.m[m.id]?'✓ изучено':'открыть →'}</div></article>`).join('');$$('.module-row').forEach(x=>x.onclick=()=>openModule(x.dataset.mid))}
+function ul(items){return items&&items.length?`<ul>${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p>Отдельных пунктов в источнике нет.</p>'}
+function openModule(id){cur=D.modules.find(m=>m.id===id);show('learn');$('#mobileTitle').textContent=cur.title;$('#mark').textContent=S.m[id]?'✓ Изучено':'✓ Отметить изученным';let html=`<div class="module-head"><div class="eyebrow">${esc(cur.source||'')}</div><h1>${cur.icon} ${esc(cur.title)}</h1><p>${cur.special==='funnel'?'Путь пользователя разбит на последовательные этапы. Каждый этап раскрывается по одной логике.':'Все исходные блоки сохранены и расположены сверху вниз. Каждый блок раскрывается отдельно.'}</p></div><div class="cascade">`;cur.stages.forEach((s,i)=>{if(cur.special==='funnel'){html+=`<article class="stage-card"><div class="stage-head"><div class="stage-num">${i+1}</div><div><h2>${esc(s.title)}</h2><p>${esc(s.summary)}</p></div></div><details class="accordion"><summary>Схема и смысл этапа</summary><div class="accbody">${esc(s.schema||s.summary)}</div></details><details class="accordion"><summary>Термины</summary><div class="accbody"><div class="termchips">${(s.terms||[]).map(t=>`<span class="termchip">${esc(t)}</span>`).join('')||'—'}</div></div></details><details class="accordion"><summary>Потенциальные проблемы</summary><div class="accbody">${ul(s.problems)}</div></details><details class="accordion"><summary>Как диагностировать</summary><div class="accbody">${ul(s.diagnostics)}</div></details><details class="accordion"><summary>Возможная оптимизация</summary><div class="accbody">${ul(s.optimization)}</div></details><details class="accordion"><summary>Что проверить после изменения</summary><div class="accbody">${ul(s.after)}</div></details></article>`}else{html+=`<article class="stage-card"><div class="stage-head"><div class="stage-num">${i+1}</div><div><h2>${esc(s.title)}</h2><p>${esc(s.summary||'Разверни блок для полного материала.')}</p></div></div><details class="accordion"><summary>Схема / полный материал</summary><div class="accbody sourcebody">${s.body}</div></details><details class="accordion"><summary>Термины этого блока</summary><div class="accbody"><div class="termchips">${(s.terms||[]).map(t=>`<span class="termchip">${esc(t)}</span>`).join('')||'Основные определения находятся в полном материале и словаре.'}</div></div></details><details class="accordion"><summary>Как применять на интервью</summary><div class="accbody"><p><b>Логика:</b> объясни смысл блока → назови ключевые метрики/термины → покажи риск или trade-off → объясни, как проверишь решение данными.</p></div></details></article>`}});html+='</div>';$('#learnBody').innerHTML=html}
+function progress(){let k=Object.values(S.q).filter(x=>x==='known').length,r=Object.values(S.q).filter(x=>x==='review').length,md=Object.values(S.m).filter(Boolean).length,total=D.questions.length+D.modules.length,p=Math.round((k+md)/total*100);$('#pct').textContent=$('#mpct').textContent=p+'%';$('#bar').style.width=p+'%';$('#progressText').textContent=`${k} вопросов знаю · ${r} повторить · ${md} разделов изучено`;$('#known').textContent=k}
+function qcats(){[...new Set(D.questions.map(x=>x.cat))].sort().forEach(c=>$('#qcat').insertAdjacentHTML('beforeend',`<option>${esc(c)}</option>`))}
+function renderQ(){let q=$('#qsearch').value.toLowerCase().trim(),cat=$('#qcat').value,only=$('#review').classList.contains('active');let arr=D.questions.map((x,i)=>({...x,i})).filter(x=>(cat==='ALL'||x.cat===cat)&&(!q||(x.q+' '+x.a).toLowerCase().includes(q))&&(!only||S.q[x.i]==='review'));$('#qlist').innerHTML=arr.map((x,n)=>`<article class="question"><div class="qtop"><div class="qnum">${n+1}</div><div class="qmain"><b>${esc(x.q)}</b><small>${esc(x.cat)}</small></div><div class="qstatus"><button class="known ${S.q[x.i]==='known'?'on':''}" data-i="${x.i}" data-v="known">Знаю</button><button class="review ${S.q[x.i]==='review'?'on':''}" data-i="${x.i}" data-v="review">Повторить</button></div></div><details><summary>Показать ответ</summary><div class="answer">${esc(x.a)}</div></details></article>`).join('');$$('.qstatus button').forEach(b=>b.onclick=()=>{S.q[b.dataset.i]=S.q[b.dataset.i]===b.dataset.v?'':b.dataset.v;save();renderQ()})}
+function renderG(){let q=$('#gsearch').value.toLowerCase().trim();$('#glist').innerHTML=D.glossary.filter(x=>!q||(x.term+' '+x.def).toLowerCase().includes(q)).map(x=>`<article class="gloss"><b>${esc(x.term)}</b><span>${esc(x.def)}</span></article>`).join('')}
+function openMenu(){$('#sidebar').classList.add('open');$('#scrim').classList.add('show')}function closeMenu(){$('#sidebar').classList.remove('open');$('#scrim').classList.remove('show')}
+function init(){nav();renderModules();qcats();renderQ();renderG();progress();document.documentElement.dataset.theme=S.theme||'light';$$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));$('#search').oninput=e=>renderModules(e.target.value);$('#qsearch').oninput=renderQ;$('#qcat').onchange=renderQ;$('#review').onclick=e=>{e.currentTarget.classList.toggle('active');renderQ()};$('#gsearch').oninput=renderG;$('#mark').onclick=()=>{if(!cur)return;S.m[cur.id]=!S.m[cur.id];save();$('#mark').textContent=S.m[cur.id]?'✓ Изучено':'✓ Отметить изученным';renderModules();toast(S.m[cur.id]?'Раздел изучен':'Отметка снята')};$('#theme').onclick=()=>{S.theme=S.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=S.theme;save()};$('#menu').onclick=openMenu;$('#scrim').onclick=closeMenu;$('#export').onclick=()=>{let b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='pm-interview-progress.json';a.click();URL.revokeObjectURL(a.href)};$('#import').onchange=e=>{let f=e.target.files[0];if(!f)return,r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();renderModules();renderQ();toast('Импортировано')}catch{toast('Ошибка файла')}};r.readAsText(f)};$('#reset').onclick=()=>{if(confirm('Сбросить прогресс?')){S={q:{},m:{},theme:S.theme};save();renderModules();renderQ()}};window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('#install').hidden=false});$('#install').onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('#install').hidden=true}};if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')}init();

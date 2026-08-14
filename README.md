@@ -1,32 +1,19 @@
-# PM Interview OS — PWA
+# PM Interview Trainer PWA v2
 
-Статический PWA без build-step. Подходит для GitHub + Cloudflare Pages.
+Объединены:
+- `iGaming_prep_interactive.html` — уникальные учебные разделы, таблицы, формулы, заметки и вопросы.
+- `index.html` — подробная диагностика воронки, Analytics + SQL, Head/B2B, кейсы и сегментация.
 
-## Локальный запуск
-Service Worker требует HTTP/HTTPS. Самый простой вариант:
-```bash
-python -m http.server 8080
-```
-Открыть `http://localhost:8080`.
+## v2
+- вертикальный каскад во всех разделах;
+- воронка: схема, термины, проблемы, диагностика, оптимизация, проверка результата;
+- остальные модули: каждый исходный блок — отдельный каскадный этап с полным раскрываемым материалом, терминами и логикой применения;
+- расширенный словарь;
+- объединённый тренажёр с удалением дублей;
+- лаконичный интерфейс без рекламных слоганов;
+- PWA/offline/localStorage/import-export.
 
 ## Cloudflare Pages
-1. Загрузить папку в GitHub repository.
-2. В Cloudflare Pages подключить этот repository.
-3. Framework preset: `None`.
-4. Build command: оставить пустым.
-5. Build output directory: `/` (корень проекта).
-6. После первого HTTPS-деплоя PWA можно устанавливать через браузер.
-
-## Структура
-- `index.html` — shell приложения
-- `styles.css` — дизайн
-- `content.js` — учебный контент (удобно расширять)
-- `app.js` — навигация, поиск, тренажёр, прогресс, импорт/экспорт
-- `manifest.webmanifest` — PWA manifest
-- `sw.js` — offline cache
-- `icons/` — PWA icons
-- `_headers`, `_redirects` — Cloudflare Pages
-- `.nojekyll` — совместимость с GitHub Pages
-
-## Дальнейшие доработки
-Новые материалы лучше добавлять в `content.js`. Приложение автоматически строит карточки, поиск и навигацию.
+Framework preset: None
+Build command: пусто
+Output directory: корень репозитория
