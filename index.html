@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="description" content="PWA-тренажёр для подготовки Middle Product Manager к техническому интервью">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="stylesheet" href="./styles.css">
+<title>PM Interview OS</title>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brandrow">
+      <div class="brandmark">PM</div>
+      <div><div class="brand">Interview OS</div><div class="subbrand">Middle Product Manager</div></div>
+    </div>
+
+    <div class="progress-card">
+      <div class="progress-top"><span>Подготовка</span><b id="progressPct">0%</b></div>
+      <div class="progress-track"><div id="progressBar"></div></div>
+      <div class="progress-meta"><span id="knownCount">0 вопросов освоено</span><span id="reviewCount">0 повторить</span></div>
+    </div>
+
+    <nav id="nav"></nav>
+
+    <div class="side-bottom">
+      <button class="ghost full" id="installBtn" hidden>＋ Установить приложение</button>
+      <button class="ghost full" id="themeBtn">◐ Тема</button>
+    </div>
+  </aside>
+
+  <header class="mobilebar">
+    <button class="iconbtn" id="menuBtn" aria-label="Меню">☰</button>
+    <div><b>PM Interview OS</b><small id="mobileSection">Обзор</small></div>
+    <span class="mobilepct" id="mobilePct">0%</span>
+  </header>
+
+  <main class="main">
+    <section id="dashboard" class="view active">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">TECHNICAL INTERVIEW PREP · PWA</div>
+          <h1>Учись через систему,<br><span>а не через зубрёжку.</span></h1>
+          <p>Единая версия двух материалов: воронка, метрики, аналитика, A/B, retention/CRM, сегментация, KYC/risk, GEO/B2B и тренажёр вопросов.</p>
+          <div class="hero-actions">
+            <button class="primary" data-go="trainer">Начать тренировку</button>
+            <button class="secondary" data-go="funnel">Открыть воронку</button>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-stat"><span>Модель мышления</span><b>Problem → Data → Diagnosis → Hypothesis → Decision → Measurement</b></div>
+          <div class="mini-grid">
+            <div><b id="modCount">0</b><span>модулей</span></div>
+            <div><b id="qCount">0</b><span>вопросов</span></div>
+            <div><b id="gCount">0</b><span>терминов</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="searchwrap">⌕ <input id="globalSearch" placeholder="Найти: SRM, cohort, Hold, SQL, KYC…"></div>
+        <button class="chip" data-filter="must">Must know</button>
+        <button class="chip" data-filter="focus">Deep dive</button>
+        <button class="chip" id="resetFilter">Все</button>
+      </div>
+
+      <div class="module-grid" id="moduleGrid"></div>
+
+      <div class="safe-note">
+        <b>Фокус этой версии:</b> подготовка к PM-интервью через аналитику, UX, эксперименты, compliance, B2B и диагностику. Операционные механики, направленные на стимулирование азартного поведения, намеренно не превращены в пошаговые инструкции.
+      </div>
+    </section>
+
+    <section id="moduleView" class="view">
+      <div class="topline">
+        <button class="backbtn" data-go="dashboard">← Обзор</button>
+        <div class="module-actions">
+          <button class="ghost" id="markModule">✓ Отметить изученным</button>
+        </div>
+      </div>
+      <div id="moduleContent"></div>
+    </section>
+
+    <section id="trainer" class="view">
+      <div class="section-head">
+        <div><div class="eyebrow">ACTIVE RECALL</div><h2>Тренажёр интервью</h2><p>Сначала ответь вслух. Потом раскрой эталонную структуру и отметь статус.</p></div>
+        <div class="trainer-score"><b id="trainerKnown">0</b><span>освоено</span></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="searchwrap">⌕ <input id="questionSearch" placeholder="Поиск по вопросам"></div>
+        <select id="questionCat"><option value="ALL">Все категории</option></select>
+        <button class="chip" id="onlyReview">Только повторить</button>
+        <button class="chip" id="shuffleBtn">Перемешать</button>
+      </div>
+      <div id="questionList" class="question-list"></div>
+    </section>
+
+    <section id="glossary" class="view">
+      <div class="section-head">
+        <div><div class="eyebrow">QUICK REFERENCE</div><h2>Словарь</h2><p>Термины, которые нужно объяснять без паузы и канцелярита.</p></div>
+      </div>
+      <div class="searchwrap wide">⌕ <input id="glossSearch" placeholder="Поиск по словарю"></div>
+      <div id="glossList" class="glossary-grid"></div>
+    </section>
+
+    <section id="settings" class="view">
+      <div class="section-head"><div><div class="eyebrow">LOCAL FIRST</div><h2>Настройки и данные</h2><p>Прогресс хранится локально в браузере и доступен офлайн.</p></div></div>
+      <div class="settings-grid">
+        <div class="panel"><h3>Прогресс</h3><p>Можно сохранить прогресс в JSON и перенести на другое устройство.</p><div class="row"><button class="secondary" id="exportBtn">Экспорт</button><label class="secondary filelabel">Импорт<input type="file" id="importFile" accept="application/json"></label></div></div>
+        <div class="panel"><h3>Сброс</h3><p>Удаляет только локальные статусы «Знаю / Повторить» и изученные модули.</p><button class="danger" id="resetBtn">Сбросить прогресс</button></div>
+        <div class="panel"><h3>PWA</h3><p id="pwaStatus">Приложение работает как статический сайт и поддерживает offline cache.</p></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="toast" id="toast"></div>
+<script src="./content.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
