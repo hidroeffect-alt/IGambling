@@ -1,4 +1,4 @@
-# PM Interview Trainer PWA v2.2
+# PM Interview Trainer PWA v2.4
 
 Объединены:
 - `iGaming_prep_interactive.html` — уникальные учебные разделы, таблицы, формулы, заметки и вопросы.
@@ -40,3 +40,13 @@ Output directory: корень репозитория
 - добавлены LATAM-вопросы в тренажёр и новые термины в словарь;
 - regulatory/payment content актуализирован на 24.08.2026;
 - cache key Service Worker обновлён для гарантированного получения новой версии.
+
+
+## v2.4 Target Vacancy — iGaming Mexico
+- отдельная вкладка «Вакансия · iGaming Mexico» вынесена над общими материалами;
+- 21 блок подготовки именно под вакансию Product Manager для рынка Мексики;
+- актуальные на 24.08.2026 Mexico regulation/tax/mobile/payment facts;
+- глубокие блоки по Mexico funnel, SPEI/cashier, sportsbook, competitors, unit economics, A/B, CRM, KYC/fraud/RG, stakeholder management;
+- 35 специальных вопросов категории «Вакансия · Mexico» в тренажёре;
+- добавлены профильные термины в словарь;
+- Service Worker cache key обновлён.
