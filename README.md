@@ -32,3 +32,11 @@ Output directory: корень репозитория
 - исправлено перезаписывание обработчика sidebar;
 - при старте автоматически открывается «Воронка»;
 - контент и остальной интерфейс не изменены.
+
+
+## v2.3 LATAM Product Playbook
+- добавлен отдельный глубокий LATAM-модуль (Brazil, Mexico, Colombia, Argentina, Peru, Chile);
+- payments, localization, acquisition, CRM, bonuses, KYC/fraud, Responsible Gaming, analytics, competitor research, launch playbook, 30/60/90;
+- добавлены LATAM-вопросы в тренажёр и новые термины в словарь;
+- regulatory/payment content актуализирован на 24.08.2026;
+- cache key Service Worker обновлён для гарантированного получения новой версии.
