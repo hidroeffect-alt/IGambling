@@ -50,3 +50,15 @@ Output directory: корень репозитория
 - 35 специальных вопросов категории «Вакансия · Mexico» в тренажёре;
 - добавлены профильные термины в словарь;
 - Service Worker cache key обновлён.
+
+
+## v2.6 Product Knowledge Base
+- Added Research Toolkit with practical use/limits for DataReportal, GSMA, Similarweb, AppMagic, Sensor Tower, Statista, Google Trends, Store Reviews, Reddit and LinkedIn.
+- Added Mexico-first GEO Playbook for Mexico, Brazil, Colombia, Chile, Argentina and Peru.
+- Added Product Frameworks, Product Discovery, Product Delivery and Product Thinking modules.
+- Existing modules/content preserved.
+- PWA cache bumped to v2.6; index.html and offline.html preserved.
+
+
+## v2.6 Research Playbook
+Добавлен отдельный раздел «Research Playbook · Как продакт исследует рынок»: карта продуктовых вопросов и источников, hierarchy of evidence, market sizing, player/device research, payments, competitor intelligence, честное разделение публичных proxy и внутренних FTD/Retention/LTV, пошаговый алгоритм Market → Player → Legal → Competitors → Payments → Hypotheses → Priority → Validation, пример Mexico и checklist качества research. Остальной контент и HTML сохранены без изменений.
