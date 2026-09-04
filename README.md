@@ -62,3 +62,12 @@ Output directory: корень репозитория
 
 ## v2.6 Research Playbook
 Добавлен отдельный раздел «Research Playbook · Как продакт исследует рынок»: карта продуктовых вопросов и источников, hierarchy of evidence, market sizing, player/device research, payments, competitor intelligence, честное разделение публичных proxy и внутренних FTD/Retention/LTV, пошаговый алгоритм Market → Player → Legal → Competitors → Payments → Hypotheses → Priority → Validation, пример Mexico и checklist качества research. Остальной контент и HTML сохранены без изменений.
+
+## v2.7 — Sportsbook Promotions & Bonus Mechanics (04.09.2026)
+
+Добавлены два самостоятельных раздела без изменения существующего контента:
+
+- **Sportsbook · Promotions** — стратегия промо, 10+ ключевых механик, segmentation/personalization, promo economics, incrementality, A/B/holdout, UX, anti-abuse/RG, Mexico event-led use cases, competitor teardown и интервью-кейсы.
+- **Sportsbook · Bonus Mechanics** — Bonus Engine, eligibility/qualification, reward state machine, trigger events, idempotency, wallet/token model, stake-removed settlement, wagering, expiry/concurrency, void/cashout/rollback, stacking, ledger/reconciliation, observability, QA и mini-spec.
+
+Тренажёр расширен до 204 вопросов, словарь — до 136 терминов. Service Worker cache обновлён на v2.7.
